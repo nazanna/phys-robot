@@ -11,7 +11,9 @@ CREATE TABLE IF NOT EXISTS responses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     question_index INTEGER,
-    response TEXT
+    response TEXT,
+    username TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 ''')
 
