@@ -21,12 +21,12 @@ for num in range(10, N_img):
 
 # Настройка логирования
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+                    level=logging.WARNING)
 
-async def save_result(user_id: int, question_index: int, response: str):
+async def save_result(user_id: int, username: str, question_index: int, response: str):
     conn = sqlite3.connect('user_responses.db')
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO responses (user_id, question_index, response) VALUES (?, ?, ?)', (user_id, question_index, response))
+    cursor.execute('INSERT INTO responses (user_id, username, question_index, response) VALUES (?, ?, ?, ?)', (user_id, username, question_index, response))
     conn.commit()
     conn.close()
 
@@ -58,11 +58,10 @@ async def send_question(message, context: ContextTypes.DEFAULT_TYPE):
         await message.reply_text("Ура! 100500 вопросов первой части подошли к концу, скоро будет вторая:). Спасибо, что на все ответили!")
 
 async def handle_text_response(update: Update, context: CallbackContext):
-    user_id = update.effective_user.id
     question_index = context.user_data['question_index']
 
     # Сохраняем текстовый ответ
-    await save_result(user_id, question_index, update.message.text)
+    await save_result(update.effective_user.id, update.effective_user.name, question_index, update.message.text)
 
     # Переход к следующему вопросу
     context.user_data['question_index'] += 1
@@ -70,15 +69,14 @@ async def handle_text_response(update: Update, context: CallbackContext):
 
 async def button(update: Update, context: CallbackContext):
     query = update.callback_query
-    user_id = update.effective_user.id
-    query.answer()
+    await query.answer()
 
     data = query.data.split("_")
     question_index = int(data[1])
     response = data[2]
 
     # Сохраняем ответ пользователя в базу данных
-    await save_result(user_id, question_index, response)
+    await save_result(update.effective_user.id, update.effective_user.name, question_index, response)
 
     # Переход к следующему вопросу
     context.user_data['question_index'] += 1
