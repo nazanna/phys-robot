@@ -1,5 +1,8 @@
-bin/*
-lib/*
+bin
+lib
+lib64/*
 .venv
 __pycache__
 .ssh
+*.db
+user_responses.db
