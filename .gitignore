@@ -5,4 +5,3 @@ lib64/*
 __pycache__
 .ssh
 *.db
-user_responses.db
