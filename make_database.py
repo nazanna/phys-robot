@@ -1,7 +1,7 @@
 import sqlite3
 
 # Создаем или открываем базу данных
-conn = sqlite3.connect('user_responses.db')
+conn = sqlite3.connect('user_responses_test.db')
 cursor = conn.cursor()
 
 # Создаем таблицу, если она не существует
