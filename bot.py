@@ -4,11 +4,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
 from lockbox import get_lockbox_secret
 from questions import QUESTIONS, IMAGES, number_of_questions_in_first_poll
-
-DEBUG=True
-responses_db_name = f'user_responses{"_test" if DEBUG else ""}.db'
-users_db_name = f'users{"_test" if DEBUG else ""}.db'
-token_key = f"physbot-{"test" if DEBUG else "main"}-token"
+from constants import users_db_name, responses_db_name, token_key
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.WARNING)
@@ -96,9 +92,9 @@ async def button(update: Update, context: CallbackContext):
     await query.answer()
 
     data = query.data.split("_")
-    question_index = int(data[1])
+    question_index = await get_question_index(update.effective_user.id, context)
     response = data[2]
-
+    
     await save_result(update.effective_user.id, update.effective_user.name, question_index, response)
     context.user_data['question_index'] += 1
     await send_question(query.message, update.effective_user.id, context)
