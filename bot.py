@@ -3,14 +3,14 @@ import sqlite3
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
 from lockbox import get_lockbox_secret
-from questions import QUESTIONS, IMAGES, number_of_questions_in_first_poll
+from questions import QUESTIONS, IMAGES
 from constants import users_db_name, responses_db_name, token_key
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.WARNING)
 
 async def start(update: Update, _: CallbackContext):
-    await update.message.reply_text("Привет! Сейчас начнется большой опрос. Пожалуйста, отвечайте честно и думайте перед выбором! Введите /poll_1_part, чтобы начать.")
+    await update.message.reply_text("Привет! Сейчас начнется большой опрос. Пожалуйста, отвечайте честно и думайте перед выбором! Введите /poll, чтобы начать.")
 
 async def save_result(user_id: int, username: str, question_index: int, response: str):
     if question_index < 2:
@@ -35,11 +35,12 @@ async def save_result(user_id: int, username: str, question_index: int, response
         conn.close()
 
 async def get_question_index(user_id: int, context: ContextTypes.DEFAULT_TYPE):
+    # returns index of first unanswered question for user
     if 'question_index' in context.user_data:
         return context.user_data['question_index']
     conn = sqlite3.connect(responses_db_name)
     cursor = conn.cursor()
-    cursor.execute(f'SELECT question_index from responses WHERE user_id={user_id} ORDER BY updated_at DESC')
+    cursor.execute(f'SELECT question_index from responses WHERE user_id={user_id} ORDER BY updated_at DESC LIMIT 1')
     rows = cursor.fetchall()
     conn.close()
     if len(rows) == 0:
@@ -48,12 +49,8 @@ async def get_question_index(user_id: int, context: ContextTypes.DEFAULT_TYPE):
         context.user_data['question_index'] = rows[0][0] + 1
     return context.user_data['question_index']
 
-async def poll_1(update: Update, context: CallbackContext):
-    context.user_data['question_index'] = 0
-    await send_question(update.message, update.effective_user.id, context)
-
-async def poll_2(update: Update, context: CallbackContext):
-    context.user_data['question_index'] = number_of_questions_in_first_poll + 2
+async def poll(update: Update, context: CallbackContext):
+    await get_question_index(update.effective_user.id, context)
     await send_question(update.message, update.effective_user.id, context)
 
 async def send_question(message, user_id: int, context: ContextTypes.DEFAULT_TYPE):
@@ -104,10 +101,9 @@ def main():
     app = ApplicationBuilder().token(token).build()
     print("Bot successfully started!")
     app.add_handler(CommandHandler('start', start))
-    app.add_handler(CommandHandler("poll_1_part", poll_1))
-    # app.add_handler(CommandHandler("poll_2_part", poll_2))
+    app.add_handler(CommandHandler("poll", poll))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_response))
-    app.add_handler(MessageHandler(filters.Sticker.ALL & ~filters.COMMAND & ~filters.TEXT, handle_sticker_response))
+    app.add_handler(MessageHandler(filters.Sticker.ALL, handle_sticker_response))
     app.add_handler(CallbackQueryHandler(button))
     app.run_polling()
     app.idle()
