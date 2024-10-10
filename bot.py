@@ -21,25 +21,14 @@ async def send_database_files(update: Update, context: CallbackContext):
         await update.message.reply_text("Sorry, you don't have permission to access these files.")
         logging.warning(f"Unauthorized user {user.id} ({user.username}) attempted to access database files")
         return
-
-    responses_path = os.path.join(workdir, 'responses.db')
-    user_ids_path = os.path.join(workdir, 'user_ids.db')
     
-    files_to_send = []
-    for file_path, file_name in [(responses_path, 'responses.db'), (user_ids_path, 'user_ids.db')]:
+    for file_path, file_name in [(f'{workdir}/user_responses.db', 'responses.db'), (f'{workdir}/users.db', 'users.db')]:
         if os.path.exists(file_path):
             with open(file_path, 'rb') as file:
-                files_to_send.append((file, file_name))
+                await update.message.reply_document(document=file, filename=file_name)
         else:
             await update.message.reply_text(f"Sorry, the {file_name} file is not available.")
             logging.warning(f"User {user.id} ({user.username}) requested {file_name}, but file not found")
-
-    for file, file_name in files_to_send:
-        await update.message.reply_document(document=file, filename=file_name)
-        logging.info(f"User {user.id} ({user.username}) requested {file_name} file")
-
-    if not files_to_send:
-        await update.message.reply_text("Sorry, none of the requested database files are available.")
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.WARNING)
