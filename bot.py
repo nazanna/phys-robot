@@ -11,17 +11,16 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from constants import users_db_name, responses_db_name, token_key, workdir
+from constants import users_db_name, responses_db_name, token_key, workdir, ADMIN_USERNAMES
 from lockbox import get_lockbox_secret
 from questions import QUESTIONS, IMAGES
 
 async def send_database_files(update: Update, context: CallbackContext):
     user = update.effective_user
-    if user.username not in ['nazanna25', 'andr_zhi']:
+    if user.username not in ADMIN_USERNAMES:
         await update.message.reply_text("Sorry, you don't have permission to access these files.")
         logging.warning(f"Unauthorized user {user.id} ({user.username}) attempted to access database files")
         return
-    
     for file_path, file_name in [(f'{workdir}/user_responses.db', 'responses.db'), (f'{workdir}/users.db', 'users.db')]:
         if os.path.exists(file_path):
             with open(file_path, 'rb') as file:
@@ -35,6 +34,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 async def start(update: Update, _: CallbackContext):
     await update.message.reply_text("Привет! Сейчас начнется большой опрос. Пожалуйста, отвечайте честно и думайте перед выбором! Введите /poll, чтобы начать.")
+    if update.effective_user.username in ADMIN_USERNAMES:
+        await update.message.reply_text("Чтобы скачать базы данных, нажми /get_db.")
 
 async def save_result(user_id: int, username: str, question_index: int, response: str):
     if question_index < 2:
