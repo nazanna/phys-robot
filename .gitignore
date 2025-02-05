@@ -5,3 +5,6 @@ lib64
 __pycache__
 .ssh
 *.db
+test.py
+test.sql
+credentials.json

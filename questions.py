@@ -1,12 +1,13 @@
-import pandas as pd
-from constants import workdir
+from google_sheets_api import GoogleSheetsAPI
+import asyncio
+QUESTIONS = []
+QUESTIONS_FOR_GRADE = {}
 
-df = pd.read_csv(f"{workdir}/questions_7_8_grade.csv")
-QUESTIONS = df["тема"].tolist()
+async def fetch_questions_from_sheets():
+    global QUESTIONS, QUESTIONS_FOR_GRADE
+    api = GoogleSheetsAPI()
+    QUESTIONS = await api.fetch_questions()
+    for grade in [7,8,9,10,11]:
+        QUESTIONS_FOR_GRADE[grade] = await api.fetch_questions_for_grade(grade)
 
-IMAGES = [f"{workdir}/Problems/" + "00" + str(num) + ".png" for num in range(1, 10)]
-for num in range(10, len(QUESTIONS) + 1):
-    if num < 100:
-        IMAGES.append(f"{workdir}/Problems/" + "0" + str(num) + ".png")
-    else:
-        IMAGES.append(f"{workdir}/Problems/" + str(num) + ".png")
+asyncio.run(fetch_questions_from_sheets())
