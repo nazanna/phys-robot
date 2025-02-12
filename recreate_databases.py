@@ -21,7 +21,7 @@ conn.commit()
 conn.close()
 
 
-conn = sqlite3.connect('responses.db')
+conn = sqlite3.connect('user_responses.db')
 cursor = conn.cursor()
 cursor.execute('''
 DROP TABLE responses;
