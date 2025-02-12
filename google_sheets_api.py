@@ -4,6 +4,9 @@ from googleapiclient.errors import HttpError
 from constants import workdir, GOOGLE_SHEET_ANSWERS_ID, QUESTIONS_SHEET_NAME
 from google.oauth2 import service_account
 from db_api import get_users_grade
+import logging
+
+logger = logging.getLogger(__name__)
 
 class GoogleSheetsAPI:
     SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -29,13 +32,13 @@ class GoogleSheetsAPI:
             questions = result.get("values", [])
 
             if not questions:
-                print("No questions found.")
+                logger.info("No questions found.")
                 return
             return questions
 
         except HttpError as err:
-            print(err)
-
+            logger.error(err)
+            raise err
 
     async def fetch_questions_for_grade(self, grade: int):
         try:
@@ -53,7 +56,8 @@ class GoogleSheetsAPI:
             return [q[0] for q in questions]
 
         except HttpError as err:
-            print(err)
+            logger.error(err)
+            raise err
 
     async def upload_student_data_and_answers(self, user_id: int, data: list[str]):
         grade = await get_users_grade(user_id)
@@ -77,7 +81,8 @@ class GoogleSheetsAPI:
                 }
             ).execute()
         except HttpError as err:
-            print(err)
+            logger.error(err)
+            raise err
 
 
     async def _find_user_row(self, sheet_name: str, user_id: int):
@@ -92,7 +97,7 @@ class GoogleSheetsAPI:
             users = result.get("values", [])
 
             if not users:
-                print("No data found.")
+                logger.info("No data found.")
                 return
 
             for i, user in enumerate(users):
@@ -101,7 +106,8 @@ class GoogleSheetsAPI:
 
             return len(users) + 1
         except HttpError as err:
-            print(err)
+            logger.error(err)
+            raise err
 
 
     async def _index_to_column_letter(self, index):

@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     CallbackContext,
@@ -9,6 +10,9 @@ from constants import responses_db_name, UPLOAD_FREQUENCY, workdir, MAX_IMAGES_P
 from upload_to_google_sheets import upload_student_answers_to_sheets
 import questions
 from db_api import get_users_grade
+from error_handler import send_message_to_ann
+
+logger = logging.getLogger(__name__)
 
 async def question_answer_button_callback(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -18,14 +22,24 @@ async def question_answer_button_callback(update: Update, context: CallbackConte
     if len(data) >= 2 and data[1].isdigit():
         question_index = int(data[1])
     else:
-        question_index = await get_current_question_index(update.effective_user.id, context)
-    response = data[2]
+        raise ValueError(f'Incorrect format of question answer button: {data}')
+    response = int(data[2])
     
+    keyboard = [
+        [InlineKeyboardButton("0", callback_data=f"response_{question_index}_0"),
+        InlineKeyboardButton("1", callback_data=f"response_{question_index}_1"),
+        InlineKeyboardButton("2", callback_data=f"response_{question_index}_2"),
+        InlineKeyboardButton("3", callback_data=f"response_{question_index}_3")],
+    ]
+    keyboard[0][response] = InlineKeyboardButton(f"✅{response}", callback_data=f"response_{question_index}_{response}")
+    await update.callback_query.edit_message_reply_markup(InlineKeyboardMarkup(keyboard))
     await save_answer(update.effective_user.id, question_index, response)
-    context.user_data['question_index'] = question_index + 1
+    current_question_index = await get_current_question_index(update.effective_user.id, context)
+    if question_index == current_question_index:
+        context.user_data['question_index'] = question_index + 1
+        await send_question(query.message, update.effective_user.id, context)
     if question_index % UPLOAD_FREQUENCY == 0 and question_index > 0:
         await upload_student_answers_to_sheets(update.effective_user.id)
-    await send_question(query.message, update.effective_user.id, context)
 
 async def save_answer(user_id: int, question_index: int, response: str):
     conn = sqlite3.connect(responses_db_name)
@@ -40,14 +54,12 @@ async def save_answer(user_id: int, question_index: int, response: str):
     conn.close()
 
 async def get_current_question_index(user_id: int, context: ContextTypes.DEFAULT_TYPE):
-    # returns index of first unanswered question for user and updates context.user_data['question_index']
     if 'question_index' in context.user_data:
         return context.user_data['question_index']
     conn = sqlite3.connect(responses_db_name)
     cursor = conn.cursor()
     cursor.execute(f'SELECT COUNT(*) FROM responses WHERE user_id={user_id}')
     rows = cursor.fetchall()
-    print(rows)
     conn.close()
     context.user_data['question_index'] = rows[0][0]
     return context.user_data['question_index']
@@ -68,7 +80,9 @@ async def get_images_for_question(question_number: int):
 async def send_question(message, user_id: int, context: ContextTypes.DEFAULT_TYPE):
     question_index = await get_current_question_index(user_id, context)
     grade = await get_users_grade(user_id, context)
-    print(f'INDEX = {question_index}, NUM_? = {len(questions.QUESTIONS_FOR_GRADE[grade])}')
+    if len(questions.QUESTIONS) == 0:
+        logger.error(f'QUESTIONS are empty!')
+        raise IndexError("QUESTIONS are empty, but we are sending them!")
     if question_index < len(questions.QUESTIONS_FOR_GRADE[grade]):
         keyboard = [
             [InlineKeyboardButton("0", callback_data=f"response_{question_index}_0"),
@@ -80,12 +94,13 @@ async def send_question(message, user_id: int, context: ContextTypes.DEFAULT_TYP
         
         from telegram import InputMediaPhoto
         question_number = int(questions.QUESTIONS_FOR_GRADE[grade][question_index])
-        print(question_number)
-        print(len(questions.QUESTIONS))
+        logger.info(f'Processing question {question_number}')
         current_images = await get_images_for_question(question_number)
+        if len(current_images) == 0:
+            await send_message_to_ann(f"For question {question_number} no pictures were found", context)
 
         if len(current_images) == 1:
-            await message.reply_photo(photo=open(current_images[0], 'rb'), caption=questions.QUESTIONS[question_number - 1], reply_markup=reply_markup)
+            await message.reply_photo(photo=open(current_images[0], 'rb'), caption=questions.QUESTIONS[question_number], reply_markup=reply_markup)
         else:
             media = []
             for i, image_path in enumerate(current_images):
@@ -94,7 +109,7 @@ async def send_question(message, user_id: int, context: ContextTypes.DEFAULT_TYP
             
             if media:
                 await message.reply_media_group(media=media)
-            await message.reply_text(questions.QUESTIONS[question_number - 1], reply_markup=reply_markup)
+            await message.reply_text(questions.QUESTIONS[question_number], reply_markup=reply_markup)
     else:
         await message.reply_text("Ура, 100500 вопросов подошли к концу! Спасибо за прохождение опроса, вы помогаете нам лучше вас учить😄")
         await upload_student_answers_to_sheets(user_id)

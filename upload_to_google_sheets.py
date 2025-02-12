@@ -3,6 +3,8 @@ import sqlite3
 from constants import users_db_name, responses_db_name
 import logging
 
+logger = logging.getLogger(__name__)
+
 async def upload_student_answers_to_sheets(user_id: int):
     try:
         conn = sqlite3.connect(users_db_name)
@@ -37,10 +39,10 @@ async def upload_student_answers_to_sheets(user_id: int):
         api = GoogleSheetsAPI()
         success = await api.upload_student_data_and_answers(user_id, data)
         if not success:
-            print("Uploaded to sheets")
+            logger.info(f"Uploaded student {user_id} answers to sheets")
             return True
         else:
             return False
     except Exception as e:
-        logging.error(f"Error uploading personal data to sheets: {str(e)}")
-        return False
+        logger.error(f"Error uploading personal data to sheets: {str(e)}")
+        raise e
