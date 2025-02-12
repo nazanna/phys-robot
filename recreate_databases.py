@@ -5,6 +5,8 @@ cursor = conn.cursor()
 
 cursor.execute('''
 DROP TABLE users;
+''')
+cursor.execute('''
 CREATE TABLE users (
     surname TEXT,
     name TEXT,
@@ -25,6 +27,8 @@ conn = sqlite3.connect('user_responses.db')
 cursor = conn.cursor()
 cursor.execute('''
 DROP TABLE responses;
+''')
+cursor.execute('''
 CREATE TABLE responses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
