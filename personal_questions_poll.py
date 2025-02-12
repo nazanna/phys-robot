@@ -95,11 +95,11 @@ async def send_poll_notification(update: Update, context: CallbackContext):
     return ConversationHandler.END
 
 PERSONAL_QUESTIONS_STATES = {
-    LAST_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_personal_question)],
-    FIRST_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_personal_question)],
-    SURNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_personal_question)],
-    SCHOOL: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_personal_question)],
-    GRADE: [MessageHandler(filters.Regex("^(7|8|9|10|11)$"), send_personal_question)],
-    CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_personal_question)],
-    END: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_poll_notification)],
+    LAST_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_personal_question, block=False)],
+    FIRST_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_personal_question, block=False)],
+    SURNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_personal_question, block=False)],
+    SCHOOL: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_personal_question, block=False)],
+    GRADE: [MessageHandler(filters.Regex("^(7|8|9|10|11)$"), send_personal_question, block=False)],
+    CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_personal_question, block=False)],
+    END: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_poll_notification, block=False)],
 }
