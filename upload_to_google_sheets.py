@@ -10,7 +10,7 @@ async def upload_student_answers_to_sheets(user_id: int):
         conn = sqlite3.connect(users_db_name)
         cursor = conn.cursor()
         cursor.execute(f'''
-            SELECT user_id, surname, name, last_name, grade, school, contact, username
+            SELECT user_id, last_name, name, surname, grade, school, contact, username
             FROM users
             WHERE user_id={user_id}
         ''')
