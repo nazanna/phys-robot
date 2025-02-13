@@ -1,7 +1,7 @@
 import os
 import sqlite3
 import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, error
 from telegram.ext import (
     CallbackContext,
     ContextTypes,
@@ -14,6 +14,13 @@ from error_handler import send_message_to_ann
 
 logger = logging.getLogger(__name__)
 
+def get_main_questions_keyboard(question_index):
+    return [[
+        InlineKeyboardButton("0", callback_data=f"response_{question_index}_0"),
+        InlineKeyboardButton("1", callback_data=f"response_{question_index}_1"),
+        InlineKeyboardButton("2", callback_data=f"response_{question_index}_2"),
+        ]]
+
 async def question_answer_button_callback(update: Update, context: CallbackContext):
     query = update.callback_query
     await query.answer()
@@ -25,14 +32,14 @@ async def question_answer_button_callback(update: Update, context: CallbackConte
         raise ValueError(f'Incorrect format of question answer button: {data}')
     response = int(data[2])
     
-    keyboard = [
-        [InlineKeyboardButton("0", callback_data=f"response_{question_index}_0"),
-        InlineKeyboardButton("1", callback_data=f"response_{question_index}_1"),
-        InlineKeyboardButton("2", callback_data=f"response_{question_index}_2"),
-        InlineKeyboardButton("3", callback_data=f"response_{question_index}_3")],
-    ]
+    keyboard = get_main_questions_keyboard(question_index)
     keyboard[0][response] = InlineKeyboardButton(f"✅{response}", callback_data=f"response_{question_index}_{response}")
-    await update.callback_query.edit_message_reply_markup(InlineKeyboardMarkup(keyboard))
+    try:
+        await update.callback_query.edit_message_reply_markup(InlineKeyboardMarkup(keyboard))
+    except error.BadRequest as e:
+        if "Message is not modified" not in str(e):
+            raise
+    
     await save_answer(update.effective_user.id, question_index, response)
     current_question_index = await get_current_question_index(update.effective_user.id, context)
     if question_index == current_question_index:
@@ -84,12 +91,7 @@ async def send_question(message, user_id: int, context: ContextTypes.DEFAULT_TYP
         logger.error(f'QUESTIONS are empty!')
         raise IndexError("QUESTIONS are empty, but we are sending them!")
     if question_index < len(questions.QUESTIONS_FOR_GRADE[grade]):
-        keyboard = [
-            [InlineKeyboardButton("0", callback_data=f"response_{question_index}_0"),
-             InlineKeyboardButton("1", callback_data=f"response_{question_index}_1"),
-             InlineKeyboardButton("2", callback_data=f"response_{question_index}_2"),
-             InlineKeyboardButton("3", callback_data=f"response_{question_index}_3")],
-        ]
+        keyboard = get_main_questions_keyboard(question_index)
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         from telegram import InputMediaPhoto

@@ -86,7 +86,7 @@ async def _save_personal_question_response(user_id: int, question_index: int, re
 async def send_poll_notification(update: Update, context: CallbackContext):
     reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("Ок, понятно", callback_data="start_poll")]])
     await update.message.reply_text('''Спасибо за информацию, теперь начинаем опрос! Впереди будут различные физические темы с примерами задач. \
-Твоя задача - прочитать, осознать и оценить свои познания по каждой теме от 0 до 3 (0 - вообще ничего не знаю, 3 - могу сейчас сесть и написать решения к задачам).
+Твоя задача - прочитать, осознать и оценить свои познания по каждой теме от 0 до 2 (0 - вообще ничего не знаю, 1 - что-то слышал, но надо бы повторить, 2 - могу сейчас сесть и написать решения к задачам).
 
 Если хочешь сбросить ответы на все тестовые вопросы, нажми /restart.
 
