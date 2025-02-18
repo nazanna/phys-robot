@@ -9,4 +9,6 @@ async def ensure_admin_rights(update: Update):
 
 async def user_has_admin_rights(update: Update):
     username = update.effective_user.username
-    return username.lower() in ADMIN_USERNAMES
+    if username:
+        return username.lower() in ADMIN_USERNAMES
+    return False
