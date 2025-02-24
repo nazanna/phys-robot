@@ -3,8 +3,8 @@ import logging
 from telegram.ext import ContextTypes
 from constants import users_db_name
 
-async def get_users_grade(user_id: int, context: ContextTypes.DEFAULT_TYPE = None):
-    if context and 'grade' in context.user_data:
+async def get_users_grade(user_id: int, context: ContextTypes.DEFAULT_TYPE = None, force_db: bool = False):
+    if context and 'grade' in context.user_data and not force_db:
         return context.user_data['grade']
     conn = sqlite3.connect(users_db_name)
     cursor = conn.cursor()

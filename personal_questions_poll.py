@@ -8,6 +8,7 @@ from telegram.ext import (
     ConversationHandler,
     filters
 )
+from db_api import get_users_grade
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +93,7 @@ async def send_poll_notification(update: Update, context: CallbackContext):
 
 Если хочешь заново ответить на личные вопросы (имя, фамилия и т.п.), нажми /start.''', reply_markup=reply_markup)
     context.user_data['initial_question'] = 10
+    await get_users_grade(update.effective_user.id, context, force_db=True)
     return ConversationHandler.END
 
 PERSONAL_QUESTIONS_STATES = {
