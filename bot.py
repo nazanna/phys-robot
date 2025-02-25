@@ -29,6 +29,7 @@ from update_pictures import update_pictures_conv_handler, update_pictures
 from personal_questions_poll import send_personal_question, PERSONAL_QUESTIONS_STATES
 from questions import fetch_questions_from_sheets
 from error_handler import error_handler
+from db_api import get_users_grade, NoGradeException
 
 async def start(update: Update, context: CallbackContext):
     await update.message.reply_text("Привет! Сейчас начнется большой опрос. Пожалуйста, отвечайте честно и думайте перед выбором!")
@@ -46,8 +47,11 @@ async def poll(update: Update, context: CallbackContext):
         message = update.message
     else:
         message = update.callback_query.message
-    await send_question(message, update.effective_user.id, context)
-
+    try:
+        await get_users_grade(update.effective_user.id, context)
+        await send_question(message, update.effective_user.id, context)
+    except NoGradeException:
+        await update.effective_chat.send_message("Кажется, вы ответили не на все вопросы про себя. Пожалуйста, нажмите /start и ответьте на них")
 
 async def restart(update: Update, _: CallbackContext):
     keyboard = [
