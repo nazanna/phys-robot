@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-async def upload_student_answers_to_sheets(user_id: int):
+async def upload_student_answers_to_sheets(user_id: int, full: False):
     try:
         conn = sqlite3.connect(users_db_name)
         cursor = conn.cursor()
@@ -37,7 +37,7 @@ async def upload_student_answers_to_sheets(user_id: int):
             data += answers
 
         api = GoogleSheetsAPI()
-        success = await api.upload_student_data_and_answers(user_id, data)
+        success = await api.upload_student_data_and_answers(user_id, data, full)
         if not success:
             logger.info(f"Uploaded student {user_id} answers to sheets")
             return True

@@ -59,13 +59,14 @@ class GoogleSheetsAPI:
             logger.error(err)
             raise err
 
-    async def upload_student_data_and_answers(self, user_id: int, data: list[str]):
+    async def upload_student_data_and_answers(self, user_id: int, data: list[str], full: bool = False):
         grade = await get_users_grade(user_id)
         sheet_name = f'Ответы {grade} класс'
+        if full:
+            sheet_name += ' full'
         row_index = await self._find_user_row(sheet_name, user_id)
         await self.update_row(sheet_name, row_index, data)
-            
-
+    
     async def update_row(self, sheet_name: str, row_index: int, values: list[str]):
         try:
             service = build("sheets", "v4", credentials=self.creds)
@@ -98,7 +99,7 @@ class GoogleSheetsAPI:
 
             if not users:
                 logger.info("No data found.")
-                return
+                return 1
 
             for i, user in enumerate(users):
                 if user[0] == str(user_id):
