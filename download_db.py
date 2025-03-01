@@ -15,11 +15,9 @@ async def update_all_answers():
     if not rows:
         return False
     data = [list(rows[i]) for i in range(len(rows))]
-    print(data)
     for user_index in range(len(data)):
         user_id = data[user_index][0]
         if data[user_index][4] in range(7,12):
-            print('YES')
             await upload_student_answers_to_sheets(user_id, full=True)
 
 asyncio.run(update_all_answers())
