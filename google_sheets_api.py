@@ -14,7 +14,7 @@ class GoogleSheetsAPI:
         creds = None
         self.SPREADSHEET_ID = id
         if not creds:
-            creds = service_account.Credentials.from_service_account_file(f"{workdir}/credentials.json").with_scopes(self.SCOPES)
+            creds = service_account.Credentials.from_service_account_file(f"{workdir}/secrets/credentials.json").with_scopes(self.SCOPES)
             if not creds.valid:
                 creds.refresh(Request())
         self.creds = creds
