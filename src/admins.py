@@ -1,4 +1,4 @@
-from constants import ADMIN_USERNAMES
+from src.constants import ADMIN_USERNAMES
 from telegram import Update
 
 async def ensure_admin_rights(update: Update):

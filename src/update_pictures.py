@@ -1,3 +1,4 @@
+import re
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode  
 from telegram.ext import (
@@ -8,9 +9,8 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from google_drive_api import GoogleDriveAPI, FileNotFoundException
-import re
-from admins import user_has_admin_rights
+from src.admins import user_has_admin_rights
+from src.google_drive_api import GoogleDriveAPI, FileNotFoundException
 
 async def update_pictures(update: Update, _: CallbackContext):
     if not await user_has_admin_rights(update):

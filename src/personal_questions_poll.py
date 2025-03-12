@@ -1,14 +1,14 @@
 import sqlite3
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from constants import users_db_name
 from telegram.ext import (
     CallbackContext, 
     MessageHandler,
     ConversationHandler,
     filters
 )
-from db_api import get_users_grade
+from src.constants import users_db_name
+from src.db_api import get_users_grade
 
 logger = logging.getLogger(__name__)
 

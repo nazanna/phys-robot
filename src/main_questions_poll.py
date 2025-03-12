@@ -6,11 +6,11 @@ from telegram.ext import (
     CallbackContext,
     ContextTypes,
 )
-from constants import responses_db_name, UPLOAD_FREQUENCY, workdir, MAX_IMAGES_PER_QUESTION
-from upload_to_google_sheets import upload_student_answers_to_sheets
+from src.constants import RESPONSES_DB_NAME, UPLOAD_FREQUENCY, workdir, MAX_IMAGES_PER_QUESTION
+from src.upload_to_google_sheets import upload_student_answers_to_sheets
 import questions
-from db_api import get_users_grade
-from error_handler import send_message_to_ann
+from src.db_api import get_users_grade
+from src.error_handler import send_message_to_ann
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ async def question_answer_button_callback(update: Update, context: CallbackConte
         await upload_student_answers_to_sheets(update.effective_user.id)
 
 async def save_answer(user_id: int, question_index: int, response: str):
-    conn = sqlite3.connect(responses_db_name)
+    conn = sqlite3.connect(RESPONSES_DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO responses (user_id, question_index, response) 
@@ -63,7 +63,7 @@ async def save_answer(user_id: int, question_index: int, response: str):
 async def get_current_question_index(user_id: int, context: ContextTypes.DEFAULT_TYPE):
     if 'question_index' in context.user_data:
         return context.user_data['question_index']
-    conn = sqlite3.connect(responses_db_name)
+    conn = sqlite3.connect(RESPONSES_DB_NAME)
     cursor = conn.cursor()
     cursor.execute(f'SELECT COUNT(*) FROM responses WHERE user_id={user_id}')
     rows = cursor.fetchall()

@@ -1,7 +1,7 @@
 import sqlite3
 import logging
 from telegram.ext import ContextTypes
-from constants import users_db_name
+from src.constants import users_db_name
 
 class NoGradeException(Exception):
     pass

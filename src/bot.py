@@ -14,22 +14,22 @@ from telegram.ext import (
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.WARN,
-    filename='bot.log',
+    # filename='bot.log',
     filemode='w'
 )
 
 logger = logging.getLogger(__name__)
 
-from constants import responses_db_name, token_key
-from lockbox import get_lockbox_secret
-from main_questions_poll import send_question, question_answer_button_callback
-from questions import fetch_questions_from_sheets
-from admins import *
-from update_pictures import update_pictures_conv_handler, update_pictures
-from personal_questions_poll import send_personal_question, PERSONAL_QUESTIONS_STATES
-from questions import fetch_questions_from_sheets
-from error_handler import error_handler
-from db_api import get_users_grade, NoGradeException
+from src.constants import RESPONSES_DB_NAME, TOKEN_KEY
+from src.lockbox import get_lockbox_secret
+from src.main_questions_poll import send_question, question_answer_button_callback
+from src.questions import fetch_questions_from_sheets
+from src.admins import *
+from src.update_pictures import update_pictures_conv_handler, update_pictures
+from src.personal_questions_poll import send_personal_question, PERSONAL_QUESTIONS_STATES
+from src.questions import fetch_questions_from_sheets
+from src.error_handler import error_handler
+from src.db_api import get_users_grade, NoGradeException
 
 async def start(update: Update, context: CallbackContext):
     await update.message.reply_text("Привет! Сейчас начнется большой опрос. Пожалуйста, отвечайте честно и думайте перед выбором!")
@@ -67,7 +67,7 @@ async def handle_restart_button(update: Update, context: CallbackContext):
     
     if query.data == "restart_confirm":
         user_id = update.effective_user.id        
-        conn = sqlite3.connect(responses_db_name)
+        conn = sqlite3.connect(RESPONSES_DB_NAME)
         cursor = conn.cursor()
         cursor.execute('DELETE FROM responses WHERE user_id = ?', (user_id,))
         conn.commit()
@@ -97,9 +97,11 @@ async def update_questions(update: Update, context: CallbackContext):
     await update.effective_chat.send_message("Вопросы успешно обновлены!")
 
 def main():
-    token = get_lockbox_secret(token_key)
+    # token = get_lockbox_secret(token_key)
+    token = "8166115250:AAHBgfKWoMWPhJYJiVasjSQL4fHBIrsEHow"
     from questions import fetch_questions_from_sheets_during_bot_start
-    app = ApplicationBuilder().token(token).post_init(fetch_questions_from_sheets_during_bot_start).build()
+    app = ApplicationBuilder().token(token).build()
+    # app = ApplicationBuilder().token(token).post_init(fetch_questions_from_sheets_during_bot_start).build()
     print("Bot successfully started!")
     logger.info("Bot successfully started!")
 

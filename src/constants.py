@@ -1,11 +1,12 @@
 import os
 
 workdir=os.path.dirname(os.path.abspath(__file__))
-DEBUG = 'andrew' in workdir
+db_path=os.environ.get('DB_PATH', workdir)
+DEBUG = os.environ.get('DEBUG', True)
 
-responses_db_name = f'{workdir}/user_responses{"_test" if DEBUG else ""}.db'
-users_db_name = f'{workdir}/users{"_test" if DEBUG else ""}.db'
-token_key = f"physbot-{"test" if DEBUG else "main"}-token"
+RESPONSES_DB_NAME = f'{db_path}/user_responses{"_test" if DEBUG else ""}.db'
+USERS_DB_NAME = f'{db_path}/users{"_test" if DEBUG else ""}.db'
+TOKEN_KEY = f'physbot-{"test" if DEBUG else "main"}-token'
 IMAGE_FOLDER_NAME = os.path.join(workdir, 'Problems')
 ADMIN_USERNAMES = ['nazanna25', 'andr_zhi', 'iepholog', 'artpiv', 'valeria_chernikova']
 MAX_IMAGES_PER_QUESTION = 10

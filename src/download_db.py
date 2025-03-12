@@ -1,9 +1,9 @@
 import asyncio, sqlite3
-from constants import users_db_name
-from upload_to_google_sheets import upload_student_answers_to_sheets
+from src.constants import USERS_DB_NAME
+from src.upload_to_google_sheets import upload_student_answers_to_sheets
 
 async def update_all_answers():
-    conn = sqlite3.connect(users_db_name)
+    conn = sqlite3.connect(USERS_DB_NAME)
     cursor = conn.cursor()
     cursor.execute(f'''
         SELECT user_id, last_name, name, surname, grade, school, contact, username

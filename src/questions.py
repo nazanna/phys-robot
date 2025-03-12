@@ -1,5 +1,5 @@
-from google_sheets_api import GoogleSheetsAPI
 import logging
+from src.google_sheets_api import GoogleSheetsAPI
 
 logger = logging.getLogger(__name__)
 

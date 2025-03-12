@@ -1,12 +1,13 @@
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from constants import workdir, GOOGLE_SHEET_ANSWERS_ID, QUESTIONS_SHEET_NAME
 from google.oauth2 import service_account
-from db_api import get_users_grade
 import logging
 
 logger = logging.getLogger(__name__)
+
+from src.constants import workdir, GOOGLE_SHEET_ANSWERS_ID, QUESTIONS_SHEET_NAME
+from src.db_api import get_users_grade
 
 class GoogleSheetsAPI:
     SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]

@@ -1,13 +1,13 @@
 import sqlite3
-
-conn = sqlite3.connect('users.db')
+from src.constants import RESPONSES_DB_NAME, USERS_DB_NAME
+conn = sqlite3.connect(USERS_DB_NAME)
 cursor = conn.cursor()
 
+# cursor.execute('''
+# DROP TABLE users;
+# ''')
 cursor.execute('''
-DROP TABLE users;
-''')
-cursor.execute('''
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     surname TEXT,
     name TEXT,
     last_name TEXT,
@@ -23,13 +23,13 @@ conn.commit()
 conn.close()
 
 
-conn = sqlite3.connect('user_responses.db')
+conn = sqlite3.connect(RESPONSES_DB_NAME)
 cursor = conn.cursor()
+# cursor.execute('''
+# DROP TABLE responses;
+# ''')
 cursor.execute('''
-DROP TABLE responses;
-''')
-cursor.execute('''
-CREATE TABLE responses (
+CREATE TABLE IF NOT EXISTS responses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     question_index INTEGER,
