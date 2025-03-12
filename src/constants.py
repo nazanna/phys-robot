@@ -2,7 +2,7 @@ import os
 
 WORKDIR=os.environ.get('WORKDIR', '/app')
 DB_PATH=os.environ.get('DB_PATH', WORKDIR)
-DEBUG = os.environ.get('DEBUG', True)
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 RESPONSES_DB_NAME = f'{DB_PATH}/user_responses{"_test" if DEBUG else ""}.db'
 USERS_DB_NAME = f'{DB_PATH}/users{"_test" if DEBUG else ""}.db'

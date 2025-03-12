@@ -1,7 +1,5 @@
 import sqlite3
-import os
 from constants import RESPONSES_DB_NAME, USERS_DB_NAME
-print("Checking if /app/data exists:", os.path.exists("/app/data"))
 
 with open(RESPONSES_DB_NAME, "a"):
     pass
