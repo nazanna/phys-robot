@@ -7,8 +7,8 @@ from telegram.ext import (
     ConversationHandler,
     filters
 )
-from src.constants import users_db_name
-from src.db_api import get_users_grade
+from constants import USERS_DB_NAME
+from db_api import get_users_grade
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ async def send_personal_question(update: Update, context: CallbackContext):
     
     question_index = context.user_data['initial_question']
     if question_index == 0:
-        conn = sqlite3.connect(users_db_name)
+        conn = sqlite3.connect(USERS_DB_NAME)
         cursor = conn.cursor()
         cursor.execute(f'''
         INSERT INTO users (user_id, username) 
@@ -73,7 +73,7 @@ async def _save_personal_question_response(user_id: int, question_index: int, re
         5: "contact"
     }
     column = columns[question_index]
-    conn = sqlite3.connect(users_db_name)
+    conn = sqlite3.connect(USERS_DB_NAME)
     cursor = conn.cursor()
     cursor.execute(f'''
         INSERT INTO users (user_id, {column}) 

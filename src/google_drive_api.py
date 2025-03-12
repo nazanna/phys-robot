@@ -6,7 +6,7 @@ import io
 import os
 import logging
 
-from src.constants import workdir, IMAGE_FOLDER_NAME, GOOGLE_DRIVE_FOLDER_ID 
+from constants import WORKDIR, IMAGE_FOLDER_NAME, GOOGLE_DRIVE_FOLDER_ID 
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class GoogleDriveAPI:
         creds = None
         self.FOLDER_ID = id
         if not creds:
-            creds = service_account.Credentials.from_service_account_file(f"{workdir}/secrets/credentials.json").with_scopes(self.SCOPES)
+            creds = service_account.Credentials.from_service_account_file(f"{WORKDIR}/secrets/credentials.json").with_scopes(self.SCOPES)
             if not creds.valid:
                 creds.refresh(Request())
         self.creds = creds    

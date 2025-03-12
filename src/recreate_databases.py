@@ -1,5 +1,12 @@
 import sqlite3
-from src.constants import RESPONSES_DB_NAME, USERS_DB_NAME
+import os
+from constants import RESPONSES_DB_NAME, USERS_DB_NAME
+print("Checking if /app/data exists:", os.path.exists("/app/data"))
+
+with open(RESPONSES_DB_NAME, "a"):
+    pass
+with open(USERS_DB_NAME, "a"):
+    pass
 conn = sqlite3.connect(USERS_DB_NAME)
 cursor = conn.cursor()
 

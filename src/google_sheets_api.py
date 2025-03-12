@@ -6,8 +6,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from src.constants import workdir, GOOGLE_SHEET_ANSWERS_ID, QUESTIONS_SHEET_NAME
-from src.db_api import get_users_grade
+from constants import WORKDIR, GOOGLE_SHEET_ANSWERS_ID, QUESTIONS_SHEET_NAME
+from db_api import get_users_grade
 
 class GoogleSheetsAPI:
     SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -15,7 +15,7 @@ class GoogleSheetsAPI:
         creds = None
         self.SPREADSHEET_ID = id
         if not creds:
-            creds = service_account.Credentials.from_service_account_file(f"{workdir}/secrets/credentials.json").with_scopes(self.SCOPES)
+            creds = service_account.Credentials.from_service_account_file(f"{WORKDIR}/secrets/credentials.json").with_scopes(self.SCOPES)
             if not creds.valid:
                 creds.refresh(Request())
         self.creds = creds

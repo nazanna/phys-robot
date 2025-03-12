@@ -1,13 +1,13 @@
 import sqlite3
 import logging
-from src.constants import users_db_name, responses_db_name
-from src.google_sheets_api import GoogleSheetsAPI
+from constants import USERS_DB_NAME, RESPONSES_DB_NAME
+from google_sheets_api import GoogleSheetsAPI
 
 logger = logging.getLogger(__name__)
 
-async def upload_student_answers_to_sheets(user_id: int, full: False):
+async def upload_student_answers_to_sheets(user_id: int, full: bool = False):
     try:
-        conn = sqlite3.connect(users_db_name)
+        conn = sqlite3.connect(USERS_DB_NAME)
         cursor = conn.cursor()
         cursor.execute(f'''
             SELECT user_id, last_name, name, surname, grade, school, contact, username
@@ -21,7 +21,7 @@ async def upload_student_answers_to_sheets(user_id: int, full: False):
             return False
 
         data = list(rows[0])
-        conn = sqlite3.connect(responses_db_name)
+        conn = sqlite3.connect(RESPONSES_DB_NAME)
         cursor = conn.cursor()
         cursor.execute(f'''
             SELECT user_id, question_index, response 

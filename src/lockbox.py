@@ -1,4 +1,4 @@
-import re
+import yaml
 import subprocess
 import logging
 
@@ -13,10 +13,5 @@ def get_lockbox_secret(secret_name: str):
         logger.error(f"Error occurred: {e}")
         exit(1)
 
-    match = re.search(r'text_value:\s*(\S+)', command_output)
-    if match:
-        value = match.group(1)
-        return value
-    else:
-        logger.error("Lockbox secret is empty!")
-        exit(1)
+    data = yaml.safe_load(command_output)
+    return data["entries"][0].get("text_value", "")

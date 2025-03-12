@@ -6,11 +6,11 @@ from telegram.ext import (
     CallbackContext,
     ContextTypes,
 )
-from src.constants import RESPONSES_DB_NAME, UPLOAD_FREQUENCY, workdir, MAX_IMAGES_PER_QUESTION
-from src.upload_to_google_sheets import upload_student_answers_to_sheets
+from constants import RESPONSES_DB_NAME, UPLOAD_FREQUENCY, WORKDIR, MAX_IMAGES_PER_QUESTION
+from upload_to_google_sheets import upload_student_answers_to_sheets
 import questions
-from src.db_api import get_users_grade
-from src.error_handler import send_message_to_ann
+from db_api import get_users_grade
+from error_handler import send_message_to_ann
 
 logger = logging.getLogger(__name__)
 
@@ -75,11 +75,11 @@ async def get_images_for_question(question_number: int):
     current_images = []
     image_name_prefix = f"{'0' * (3 - len(str(question_number)))}{question_number}"
     for i in range(1, MAX_IMAGES_PER_QUESTION):  
-        image_path = os.path.join(workdir, "Problems", f"{image_name_prefix}_{i}.png")
+        image_path = os.path.join(WORKDIR, "Problems", f"{image_name_prefix}_{i}.png")
         if not os.path.exists(image_path):
             break
         current_images.append(image_path)
-    image_path = os.path.join(workdir, "Problems", f"{image_name_prefix}.png")
+    image_path = os.path.join(WORKDIR, "Problems", f"{image_name_prefix}.png")
     if os.path.exists(image_path):
         current_images.append(image_path)
     return current_images

@@ -9,8 +9,8 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from src.admins import user_has_admin_rights
-from src.google_drive_api import GoogleDriveAPI, FileNotFoundException
+from admins import user_has_admin_rights
+from google_drive_api import GoogleDriveAPI, FileNotFoundException
 
 async def update_pictures(update: Update, _: CallbackContext):
     if not await user_has_admin_rights(update):

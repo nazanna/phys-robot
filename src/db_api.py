@@ -1,7 +1,7 @@
 import sqlite3
 import logging
 from telegram.ext import ContextTypes
-from src.constants import users_db_name
+from constants import USERS_DB_NAME
 
 class NoGradeException(Exception):
     pass
@@ -9,7 +9,7 @@ class NoGradeException(Exception):
 async def get_users_grade(user_id: int, context: ContextTypes.DEFAULT_TYPE = None, force_db: bool = False):
     if context and 'grade' in context.user_data and not force_db:
         return context.user_data['grade']
-    conn = sqlite3.connect(users_db_name)
+    conn = sqlite3.connect(USERS_DB_NAME)
     cursor = conn.cursor()
     cursor.execute(f'SELECT grade FROM users WHERE user_id={user_id}')
     rows = cursor.fetchall()
