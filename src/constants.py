@@ -1,6 +1,6 @@
 import os
 
-WORKDIR=os.environ.get('WORKDIR', '.')
+WORKDIR=os.environ.get('WORKDIR', '/home/phys-bot/phys-robot')
 DB_PATH=os.environ.get('DB_PATH', WORKDIR)
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 

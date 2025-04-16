@@ -1,5 +1,6 @@
 import logging
 import sqlite3
+import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode  
 from telegram.ext import (
@@ -12,16 +13,8 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.WARN,
-    filename='bot.log',
-    filemode='w'
-)
 
-logger = logging.getLogger(__name__)
-
-from constants import RESPONSES_DB_NAME, TOKEN_KEY
+from constants import RESPONSES_DB_NAME, TOKEN_KEY, WORKDIR
 from lockbox import get_lockbox_secret
 from main_questions_poll import send_question, question_answer_button_callback
 from questions import fetch_questions_from_sheets
@@ -31,6 +24,15 @@ from personal_questions_poll import send_personal_question, PERSONAL_QUESTIONS_S
 from error_handler import error_handler
 from db_api import get_users_grade, NoGradeException
 from feedback import first_question, FEEDBACK_QUESTIONS_STATES, send_feedback_messages
+
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.WARN,
+    filename=os.path.join(WORKDIR, 'bot.log'),
+    filemode='w'
+)
+
+logger = logging.getLogger(__name__)
 
 async def start(update: Update, context: CallbackContext):
     await update.message.reply_text("Привет! Сейчас начнется большой опрос. Пожалуйста, отвечайте честно и думайте перед выбором!")
