@@ -1,6 +1,6 @@
 import os
 
-WORKDIR=os.environ.get('WORKDIR', '/app')
+WORKDIR=os.environ.get('WORKDIR', '.')
 DB_PATH=os.environ.get('DB_PATH', WORKDIR)
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 

@@ -22,3 +22,12 @@ async def get_users_grade(user_id: int, context: ContextTypes.DEFAULT_TYPE = Non
         context.user_data['grade'] = grade
     return grade
 
+async def run_select(query: str, db: str):
+    assert query.upper().startswith('SELECT')
+    conn = sqlite3.connect(db)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+

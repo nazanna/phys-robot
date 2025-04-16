@@ -4,6 +4,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode  
 from telegram.ext import (
     ApplicationBuilder,
+    Application,
     CallbackContext,
     CallbackQueryHandler,
     CommandHandler,
@@ -27,9 +28,9 @@ from questions import fetch_questions_from_sheets
 from admins import *
 from update_pictures import update_pictures_conv_handler, update_pictures
 from personal_questions_poll import send_personal_question, PERSONAL_QUESTIONS_STATES
-from questions import fetch_questions_from_sheets
 from error_handler import error_handler
 from db_api import get_users_grade, NoGradeException
+from feedback import first_question, FEEDBACK_QUESTIONS_STATES, send_feedback_messages
 
 async def start(update: Update, context: CallbackContext):
     await update.message.reply_text("Привет! Сейчас начнется большой опрос. Пожалуйста, отвечайте честно и думайте перед выбором!")
@@ -96,11 +97,14 @@ async def update_questions(update: Update, context: CallbackContext):
     await fetch_questions_from_sheets()
     await update.effective_chat.send_message("Вопросы успешно обновлены!")
 
+async def post_init(app: Application):
+    await fetch_questions_from_sheets()
+    await send_feedback_messages(app.bot)
+    
 def main():
     token = get_lockbox_secret(TOKEN_KEY)
-    from questions import fetch_questions_from_sheets_during_bot_start
     app = ApplicationBuilder().token(token).build()
-    app = ApplicationBuilder().token(token).post_init(fetch_questions_from_sheets_during_bot_start).build()
+    app = ApplicationBuilder().token(token).post_init(post_init).build()
     print("Bot successfully started!")
     logger.info("Bot successfully started!")
 
@@ -122,7 +126,13 @@ def main():
         fallbacks=[]
     )
     app.add_handler(initial_questions_conv_handler)
-    
+    feedback_handler = ConversationHandler(
+        entry_points=[CallbackQueryHandler(first_question, pattern="feedback_ok", block=False)],
+        states=FEEDBACK_QUESTIONS_STATES, 
+        fallbacks=[]
+    )
+    app.add_handler(feedback_handler)
+
     app.add_error_handler(error_handler)
     app.run_polling()
 
