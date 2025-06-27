@@ -30,8 +30,7 @@ from broadcast import broadcast_conv
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO,
-    filename=os.path.join(WORKDIR, f'bot.log'),
-    # filename=os.path.join(WORKDIR, f'bot-{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.log'),
+    filename=os.path.join(WORKDIR, f'bot-{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.log'),
     filemode='w'
 )
 logging.getLogger('httpx').setLevel(logging.WARNING) 
@@ -118,7 +117,6 @@ async def update_questions(update: Update, context: CallbackContext):
 
 async def post_init(app: Application):
     await fetch_questions_from_sheets()
-    # await send_feedback_messages(app.bot)
 
 async def empty_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     pass
@@ -126,7 +124,6 @@ async def empty_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     
 def main():
     token = get_lockbox_secret(TOKEN_KEY)
-    # app = ApplicationBuilder().token(token).build()
     app = ApplicationBuilder().token(token).post_init(post_init).build()
     print("Bot successfully started!")
     logger.info("Bot successfully started!")
