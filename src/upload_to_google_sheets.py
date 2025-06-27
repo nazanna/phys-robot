@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 async def upload_student_answers_to_sheets(user_id: int, full: bool = False):
     try:
-        conn = sqlite3.connect(USERS_DB_NAME)
+        conn = sqlite3.connect(USERS_DB_NAME) # type: ignore
         cursor = conn.cursor()
         cursor.execute(f'''
             SELECT user_id, last_name, name, surname, grade, school, contact, username

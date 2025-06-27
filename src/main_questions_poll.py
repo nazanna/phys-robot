@@ -23,9 +23,9 @@ def get_main_questions_keyboard(question_index):
 
 async def question_answer_button_callback(update: Update, context: CallbackContext):
     query = update.callback_query
-    await query.answer()
+    await query.answer() # type: ignore
 
-    data = query.data.split("_")
+    data = query.data.split("_") # type: ignore
     if len(data) >= 2 and data[1].isdigit():
         question_index = int(data[1])
     else:
@@ -35,18 +35,18 @@ async def question_answer_button_callback(update: Update, context: CallbackConte
     keyboard = get_main_questions_keyboard(question_index)
     keyboard[0][response] = InlineKeyboardButton(f"✅{response}", callback_data=f"response_{question_index}_{response}")
     try:
-        await update.callback_query.edit_message_reply_markup(InlineKeyboardMarkup(keyboard))
+        await update.callback_query.edit_message_reply_markup(InlineKeyboardMarkup(keyboard)) # type: ignore
     except error.BadRequest as e:
         if "Message is not modified" not in str(e):
             raise
     
-    await save_answer(update.effective_user.id, question_index, response)
-    current_question_index = await get_current_question_index(update.effective_user.id, context)
+    await save_answer(update.effective_user.id, question_index, response) # type: ignore
+    current_question_index = await get_current_question_index(update.effective_user.id, context) # type: ignore
     if question_index == current_question_index:
-        context.user_data['question_index'] = question_index + 1
-        await send_question(query.message, update.effective_user.id, context)
+        context.user_data['question_index'] = question_index + 1 # type: ignore
+        await send_question(query.message, update.effective_user.id, context) # type: ignore
     if question_index % UPLOAD_FREQUENCY == 0 and question_index > 0:
-        await upload_student_answers_to_sheets(update.effective_user.id)
+        await upload_student_answers_to_sheets(update.effective_user.id) # type: ignore
 
 async def save_answer(user_id: int, question_index: int, response: str):
     conn = sqlite3.connect(RESPONSES_DB_NAME)
@@ -61,15 +61,15 @@ async def save_answer(user_id: int, question_index: int, response: str):
     conn.close()
 
 async def get_current_question_index(user_id: int, context: ContextTypes.DEFAULT_TYPE):
-    if 'question_index' in context.user_data:
-        return context.user_data['question_index']
+    if 'question_index' in context.user_data: # type: ignore
+        return context.user_data['question_index'] # type: ignore
     conn = sqlite3.connect(RESPONSES_DB_NAME)
     cursor = conn.cursor()
     cursor.execute(f'SELECT COUNT(*) FROM responses WHERE user_id={user_id}')
     rows = cursor.fetchall()
     conn.close()
-    context.user_data['question_index'] = rows[0][0]
-    return context.user_data['question_index']
+    context.user_data['question_index'] = rows[0][0] # type: ignore
+    return context.user_data['question_index'] # type: ignore
 
 async def get_images_for_question(question_number: int):
     current_images = []
@@ -114,5 +114,5 @@ async def send_question(message, user_id: int, context: ContextTypes.DEFAULT_TYP
             await message.reply_text(questions.QUESTIONS[question_number], reply_markup=reply_markup)
     else:
         await message.reply_text("Ура, 100500 вопросов подошли к концу! Спасибо за прохождение опроса, вы помогаете нам лучше вас учить😄")
-        await upload_student_answers_to_sheets(user_id)
+        await upload_student_answers_to_sheets(user_id) # type: ignore
 

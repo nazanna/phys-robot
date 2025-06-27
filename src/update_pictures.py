@@ -23,7 +23,8 @@ async def update_pictures(update: Update, _: CallbackContext):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await update.message.reply_text("""
+    await update.message.reply_text( # type: ignore
+        """ 
 Выберите опцию загрузки, которая вам нужна:
 
 *1. Обновить одну картинку.* Для этого вам надо загрузить ее на [гугл диск](https://drive.google.com/drive/folders/1JghtLbJ7MEvD-33LNtbf6Q2iiy6oEysf), выбрать нужную опцию по кнопке ниже \
@@ -46,54 +47,57 @@ WAITING_FOR_PICTURE_NUMBER_STATE = 1
 
 async def handle_pictures_update_buttons(update: Update, context: CallbackContext):
     query = update.callback_query
-    await query.answer()
+    await query.answer() # type: ignore
     
-    option = query.data.split('_')[-1]
+    option = query.data.split('_')[-1] # type: ignore
     if option == "one":
-        await update.get_bot().send_message(update.effective_message.chat_id, "Введите номер картинки, \
+        await update.get_bot().send_message(update.effective_message.chat_id,  # type: ignore
+                                            "Введите номер картинки, \
 которую хотите обновить, без расширения файла. Например, для обновления `018_1.png` \
 введите `018_1`.\n\nЕсли хотите отменить, просто нажмите /cancel.")
         return WAITING_FOR_PICTURE_NUMBER_STATE
     elif option == "new":
-        await update.get_bot().send_message(update.effective_message.chat_id, "Началась загрузка картинок. Пожалуйста, подождите, это может занять некоторое время. После окончания загрузки придет сообщение.")
+        await update.get_bot().send_message(update.effective_message.chat_id,  # type: ignore
+                                             "Началась загрузка картинок. Пожалуйста, подождите, это может занять некоторое время. После окончания загрузки придет сообщение.")
         api = GoogleDriveAPI()
         await api.download_files_from_drive(new_only=True)
-        await update.get_bot().send_message(update.effective_message.chat_id, "Загрузка завершена, спасибо за ожидание!")
+        await update.get_bot().send_message(update.effective_message.chat_id, "Загрузка завершена, спасибо за ожидание!") # type: ignore
     elif option == "all":
-        await update.get_bot().send_message(update.effective_message.chat_id, "Началось обновление картинок. Пожалуйста, подождите, это может занять некоторое время. После окончания загрузки придет сообщение.")
+        await update.get_bot().send_message(update.effective_message.chat_id, "Началось обновление картинок. Пожалуйста, подождите, это может занять некоторое время. После окончания загрузки придет сообщение.") # type: ignore
         api = GoogleDriveAPI()
         await api.download_files_from_drive()
-        await update.get_bot().send_message(update.effective_message.chat_id, "Все картинки обновлены, спасибо за ожидание!")
+        await update.get_bot().send_message(update.effective_message.chat_id, "Все картинки обновлены, спасибо за ожидание!") # type: ignore
     elif option == "cancel":
-        await update.get_bot().send_message(update.effective_message.chat_id, "Ок, отменяем")
+        await update.get_bot().send_message(update.effective_message.chat_id, "Ок, отменяем") # type: ignore
 
 async def get_updated_picture_number(update: Update, context: CallbackContext):
     pattern = "^([0-9])*(_[0-9])?$"
-    if not re.match(pattern, update.message.text):
-        await update.message.reply_text("Пожалуйста, введите корректный номер картинки. Это либо число, либо число с индексом в конце, например, 123_1.")
+    if not re.match(pattern, update.message.text): # type: ignore
+        await update.message.reply_text("Пожалуйста, введите корректный номер картинки. Это либо число, либо число с индексом в конце, например, 123_1.") # type: ignore
         return WAITING_FOR_PICTURE_NUMBER_STATE
-    picture_number = update.message.text    
-    await update.message.reply_text("Спасибо! Обновление картинки началось.")
+    picture_number = update.message.text     # type: ignore
+    await update.message.reply_text("Спасибо! Обновление картинки началось.") # type: ignore
     api = GoogleDriveAPI()
     try:
         await api.download_file_by_name(f'{picture_number}.png')
-        await update.message.reply_text(f"Юхуу, картинка {picture_number}.png обновлена!")
+        await update.message.reply_text(f"Юхуу, картинка {picture_number}.png обновлена!") # type: ignore
         return ConversationHandler.END
     except FileNotFoundException:
-        await update.message.reply_text(f"Упс, кажется, картинки {picture_number}.png нет на диске. Возможно, \
+        await update.message.reply_text( # type: ignore
+            f"Упс, кажется, картинки {picture_number}.png нет на диске. Возможно, \
 проблема в расширении, должно быть .png. Проверьте, пожалуйста, и снова напишите номер нужной картинки, \
 или отмените действие с помощью /cancel.")
         return WAITING_FOR_PICTURE_NUMBER_STATE
         
 async def cancel_picture_update(update: Update, context: CallbackContext):
-    await update.message.reply_text("Галя, у нас отмена!")
-    # await update.get_bot().send_message(update.effective_message.chat_id, "Галя, у нас отмена!")
+    await update.message.reply_text("Галя, у нас отмена!") # type: ignore
     return ConversationHandler.END
 
 update_pictures_conv_handler = ConversationHandler(
-        entry_points=[CallbackQueryHandler(handle_pictures_update_buttons, pattern="update_pictures_")],
-        states={
-            WAITING_FOR_PICTURE_NUMBER_STATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_updated_picture_number)],
-        },
-        fallbacks=[CommandHandler("cancel", cancel_picture_update)],
-    )
+    entry_points=[CallbackQueryHandler(handle_pictures_update_buttons, pattern="update_pictures_")],
+    states={
+        WAITING_FOR_PICTURE_NUMBER_STATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_updated_picture_number)],
+    },
+    fallbacks=[CommandHandler("cancel", cancel_picture_update)],
+    per_message=True
+)

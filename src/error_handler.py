@@ -8,7 +8,7 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     """Log the error and send a telegram message to notify the developer."""
     logger.error("Exception while handling an update:", exc_info=context.error)
 
-    tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
+    tb_list = traceback.format_exception(None, context.error, context.error.__traceback__) # type: ignore
     tb_string = "".join(tb_list)
 
     developer_chat_id = 816623670
